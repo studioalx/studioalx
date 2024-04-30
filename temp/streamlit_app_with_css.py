@@ -17,7 +17,7 @@ alt.themes.enable("dark")
 
 #######################
 # CSS styling
-st.markdown("""
+st.markdown(
 <style>
 
 [data-testid="block-container"] {
@@ -62,7 +62,7 @@ st.markdown("""
 }
 
 </style>
-""", unsafe_allow_html=True)
+, unsafe_allow_html=True)
 
 
 #######################
