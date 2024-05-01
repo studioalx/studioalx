@@ -327,7 +327,7 @@ with tabs[0]:
 
 
     # SELECTBOX
-    uf_selectbox = select1.selectbox('Selecione o estado', list(estados.keys()), index=17)
+    uf_selectbox = select1.selectbox('Selecione o estado', list(estados.keys()), index=16)
     uf_selecionado = estados[uf_selectbox]
     grupo_desastre_selecionado = select2.selectbox('Selecione o grupo de desastre', ['Todos os Grupos de Desastre'] + list(desastres.keys()), index=0)
     # grupo_desastre_selecionado = select2.selectbox('Selecione o grupo de desastre', list(desastres.keys()), index=0)
