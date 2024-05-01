@@ -16,7 +16,7 @@ titulo_pagina = 'Mapa de Eventos Climáticos :world_map:'
 # titulo_pagina = 'Mapa de Eventos Climáticos'
 layout = 'wide'
 # st.set_page_config(layout=layout)
-st.set_page_config(page_title='Mapa de Eventos Climáticos', layout=layout)
+st.set_page_config(page_title='Mapa de Eventos Climáticos ATE 2024', layout=layout)
 st.title(titulo_pagina)
 # ---------------------------------------------------------
 
