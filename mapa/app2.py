@@ -60,7 +60,7 @@ def carrega_parquet(caminho_arquivo):
     return df
 
 @st.cache_data
-def carrega_malha(tipo='estados', uf='MG', intrarregiao='municipio', qualidade='minima'):
+def carrega_malha(tipo='estados', uf='PI', intrarregiao='municipio', qualidade='minima'):
     url = f'https://servicodados.ibge.gov.br/api/v3/malhas/{tipo}/{uf}?formato=application/vnd.geo+json&intrarregiao={intrarregiao}&qualidade={qualidade}'
     return requests.get(url).json()
 
