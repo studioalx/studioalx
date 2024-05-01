@@ -7,7 +7,7 @@ import streamlit as st
 import geopandas as gpd
 import plotly.express as px
 import pyarrow
-# import plotly.graph_objects as gov
+ import plotly.graph_objects as gov
 import plotly.subplots as sp
 from datetime import date
 
