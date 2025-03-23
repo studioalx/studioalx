@@ -60,7 +60,7 @@ def carrega_parquet(caminho_arquivo):
     return df
 
 @st.cache_data
-def carrega_malha(tipo='estados', uf='PI', intrarregiao='PIRACURUCA', qualidade='minima'):
+def carrega_malha(tipo='estados', uf='PI', intrarregiao='Piracuruca', qualidade='minima'):
     url = f'https://servicodados.ibge.gov.br/api/v3/malhas/{tipo}/{uf}?formato=application/vnd.geo+json&intrarregiao={intrarregiao}&qualidade={qualidade}'
     return requests.get(url).json()
 
@@ -138,12 +138,12 @@ def cria_mapa(df, malha, locais='ibge', cor='ocorrencias', tons=None, tons_midpo
         center={'lat': lat, 'lon': lon}, zoom=zoom, 
         mapbox_style='carto-positron', height=500,
         hover_name=nome_hover, hover_data=dados_hover,
-        opacity=0.95
+        opacity=0.50
     )
 
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
-        mapbox_bounds={"west": -150, "east": -20, "south": -60, "north": 60},
+        mapbox_bounds={"west": -200, "east": -200, "south": -200, "north": 200},
         legend=dict(
             yanchor="top",
             y=0.99,
