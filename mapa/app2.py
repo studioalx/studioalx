@@ -7,16 +7,16 @@ import streamlit as st
 import geopandas as gpd
 import plotly.express as px
 import pyarrow
- import plotly.graph_objects as gov
+# import plotly.graph_objects as gov
 import plotly.subplots as sp
 from datetime import date
 
 # -------------------- CONFIGURAÇÕES ----------------------
-titulo_pagina = 'Mapa de Eventos Climáticos :world_map:'
+titulo_pagina = 'OBSERVARIO  2024 - BY ® INTEGRAL SOLUÇÕES E GESTÃO :world_map:'
 # titulo_pagina = 'Mapa de Eventos Climáticos'
 layout = 'wide'
 # st.set_page_config(layout=layout)
-st.set_page_config(page_title='Mapa de Eventos Climáticos ATE 2024', layout=layout)
+st.set_page_config(page_title='Mapa de Eventos Climáticos', layout=layout)
 st.title(titulo_pagina)
 # ---------------------------------------------------------
 
@@ -60,7 +60,7 @@ def carrega_parquet(caminho_arquivo):
     return df
 
 @st.cache_data
-def carrega_malha(tipo='estados', uf='PI', intrarregiao='Piracuruca', qualidade='minima'):
+def carrega_malha(tipo='estados', uf='PI', intrarregiao='municipio', qualidade='minima'):
     url = f'https://servicodados.ibge.gov.br/api/v3/malhas/{tipo}/{uf}?formato=application/vnd.geo+json&intrarregiao={intrarregiao}&qualidade={qualidade}'
     return requests.get(url).json()
 
@@ -138,12 +138,12 @@ def cria_mapa(df, malha, locais='ibge', cor='ocorrencias', tons=None, tons_midpo
         center={'lat': lat, 'lon': lon}, zoom=zoom, 
         mapbox_style='carto-positron', height=500,
         hover_name=nome_hover, hover_data=dados_hover,
-        opacity=0.50
+        opacity=0.95
     )
 
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
-        mapbox_bounds={"west": -200, "east": -20, "south": -20, "north": 600},
+        mapbox_bounds={"west": -150, "east": -20, "south": -60, "north": 60},
         legend=dict(
             yanchor="top",
             y=0.99,
@@ -164,11 +164,55 @@ def cria_mapa(df, malha, locais='ibge', cor='ocorrencias', tons=None, tons_midpo
 
 
 # VARIAVEIS
-dados_atlas = carrega_parquet('desastres_latam2.parquet')
-dados_merge = carrega_parquet('area2.parquet')
-coord_uf = carrega_parquet('coord_uf.parquet')
-coord_muni = carrega_parquet('coord_muni.parquet')
-pop_pib = carrega_parquet('pop_pib_muni.parquet')
+import os
+import subprocess
+import sys
+
+# Get the current directory where the script is located
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Function to check if a file is a Git LFS pointer and pull it if needed
+def ensure_lfs_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            content = f.read(100)  # Read just the beginning to check
+            if content.startswith('version https://git-lfs.github.com/spec/v1'):
+                print(f"Downloading LFS file: {file_path}")
+                try:
+                    # Try to pull the actual file content using git lfs
+                    subprocess.run(['git', 'lfs', 'pull', '--include', os.path.basename(file_path)], 
+                                  cwd=current_dir, check=True)
+                except (subprocess.SubprocessError, FileNotFoundError):
+                    print(f"Warning: Could not pull LFS file {file_path}. Git LFS might not be installed.")
+                    print("Please install Git LFS and run 'git lfs pull' in the repository.")
+    return file_path
+
+# Ensure all parquet files are properly downloaded
+desastres_file = os.path.join(current_dir, 'desastres_latam2.parquet')
+area_file = os.path.join(current_dir, 'area2.parquet')
+coord_uf_file = os.path.join(current_dir, 'coord_uf.parquet')
+coord_muni_file = os.path.join(current_dir, 'coord_muni.parquet')
+pop_pib_file = os.path.join(current_dir, 'pop_pib_muni.parquet')
+
+# Ensure files are downloaded from Git LFS if needed
+ensure_lfs_file(desastres_file)
+ensure_lfs_file(area_file)
+ensure_lfs_file(coord_uf_file)
+ensure_lfs_file(coord_muni_file)
+ensure_lfs_file(pop_pib_file)
+
+# Use absolute paths for parquet files
+try:
+    dados_atlas = carrega_parquet(desastres_file)
+    dados_merge = carrega_parquet(area_file)
+    coord_uf = carrega_parquet(coord_uf_file)
+    coord_muni = carrega_parquet(coord_muni_file)
+    pop_pib = carrega_parquet(pop_pib_file)
+except Exception as e:
+    st.error(f"Error loading parquet files: {str(e)}")
+    st.error(f"Current directory: {current_dir}")
+    st.error(f"Files in directory: {os.listdir(current_dir)}")
+    sys.exit(1)
 # pop_pib_uf = carrega_parquet('pop_pib_latam.parquet')
 # malha_america = carrega_geojson('malha_latam.json')
 # malha_brasil = carrega_geojson('malha_brasileira.json')
@@ -182,7 +226,7 @@ print(dados_atlas.info())
 
 
 estados = {
-    'Acre': 'AC',
+   'Acre': 'AC',
     'Alagoas': 'AL',
     'Amazonas': 'AM',
     'Amapá': 'AP',
@@ -198,8 +242,8 @@ estados = {
     'Pará': 'PA',
     'Paraíba': 'PB',
     'Pernambuco': 'PE',
-    'Piauí': 'PI',
     'Paraná': 'PR',
+    'Piauí': 'PI',
     'Rio de Janeiro': 'RJ',
     'Rio Grande do Norte': 'RN',
     'Rondônia': 'RO',
@@ -209,6 +253,8 @@ estados = {
     'Sergipe': 'SE',
     'São Paulo': 'SP',
     'Tocantins': 'TO'
+
+  
 }
 
 
@@ -327,7 +373,7 @@ with tabs[0]:
 
 
     # SELECTBOX
-    uf_selectbox = select1.selectbox('Selecione o estado', list(estados.keys()), index=8)
+    uf_selectbox = select1.selectbox('Selecione o estado', list(estados.keys()), index=17)
     uf_selecionado = estados[uf_selectbox]
     grupo_desastre_selecionado = select2.selectbox('Selecione o grupo de desastre', ['Todos os Grupos de Desastre'] + list(desastres.keys()), index=0)
     # grupo_desastre_selecionado = select2.selectbox('Selecione o grupo de desastre', list(desastres.keys()), index=0)
@@ -1304,23 +1350,21 @@ with tabs[2]:
 with tabs[-1]:
     col_creditos1, col_creditos2 = st.columns([1, 1], gap='large')
 
-    col_creditos1.subheader('Founded by [IRB(Re)](https://www.irbre.com/)')
-    col_creditos1.caption('A leading figure in the Brazilian reinsurance market, with over 80 years of experience and a complete portfolio of solutions for the market.')
-    col_creditos1.image('irb.jpg', use_column_width=True)
+    col_creditos1.subheader('INTEGRAL SOLUCOES E GESTAO (https://aisistens.com.br)')
+    col_creditos1.caption('A A aisistens solução em gestão surgiu da necessidade de apresentar soluções que visam integrar e atender diferentes áreas de atuação,t.')
+    col_creditos1.image('int.jpeg', use_column_width=True)
 
-    col_creditos2.subheader('Developed by Instituto de Riscos Climáticos')
+    col_creditos2.subheader('_____________________________________________________')
     col_creditos2.markdown('''
-    **Supervisors:** Carlos Teixeira, Reinaldo Marques & Roberto Westenberger
+    **Fundador:** JOAO ALVES DOS SANTOS
 
-    **Researchers:** Luiz Otávio & Karoline Branco
+    **Ao apresentar soluções diversificadas nas áreas de saúde, 
+    educação, tecnologia, gestão da informação e qualificação profissional,                         
+    desenvolvemos e apresentamos aos nossos clientes produtos e soluções que 
+    buscam gerar economia de recursos, rapidez na interação com clientes, 
+    melhoria nos processos de trabalho, aumento de vendas e inovação organizacional.
 
-    **Data Scientists:**  Lucas Lima & Paulo Cesar
-                        
-    **Risk Scientists:** Ana Victoria & Beatriz Pimenta
-                        
-    #### Source
-    - **Atlas Digital de Desastres no Brasil** - [www.atlasdigital.mdr.gov.br/](http://atlasdigital.mdr.gov.br/).
-    - **EM-DAT, CRED / UCLouvain, 2024, Brussels, Belgium** – [www.emdat.be](https://www.emdat.be/).
-    - **SES - Sistema de Estatística da SUSEP** - [https://www2.susep.gov.br/menuestatistica/SES/principal.aspx](https://www2.susep.gov.br/menuestatistica/SES/principal.aspx)
-    - **Sistema de Subvenção Econômica ao Prêmio do Seguro Rural** - SISSER - Portal de Dados Abertos do Ministério da Agricultura e Pecuária - [dados.agricultura.gov.br/dataset/sisser3](https://dados.agricultura.gov.br/dataset/sisser3).
+   ).
     ''')
+                        
+    
