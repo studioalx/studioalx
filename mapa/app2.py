@@ -143,7 +143,7 @@ def cria_mapa(df, malha, locais='ibge', cor='ocorrencias', tons=None, tons_midpo
 
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
-        mapbox_bounds={"west": -200, "east": -200, "south": -200, "north": 200},
+        mapbox_bounds={"west": -200, "east": -20, "south": -20, "north": 600},
         legend=dict(
             yanchor="top",
             y=0.99,
